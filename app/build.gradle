@@ -1,0 +1,58 @@
+plugins {
+    id 'net.minecrell.licenser' version '0.3'
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+    defaultConfig {
+        applicationId 'net.minecrell.freezer'
+        minSdkVersion 14
+        targetSdkVersion 25
+        versionCode 1
+        versionName '1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        // Display lint report in console (for Travis)
+        textOutput 'stdout'
+        textReport = true
+    }
+
+    sourceSets.main.java {
+        srcDirs = ['src/main/kotlin']
+        include '**/*.kt'
+    }
+}
+
+dependencies {
+    compile 'org.jetbrains.kotlin:kotlin-stdlib:1.0.6'
+
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+
+    compile 'com.afollestad:material-cab:0.1.12'
+    compile 'com.afollestad:drag-select-recyclerview:0.3.6'
+}
+
+license {
+    header = rootProject.file('licenses/freezer.txt')
+
+    matching('**/drawable/ic_*.xml') {
+        header = rootProject.file('licenses/material-design-icons.txt')
+    }
+}
+
