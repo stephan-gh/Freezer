@@ -18,16 +18,17 @@
 
 package net.minecrell.freezer
 
-import android.content.Context
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.net.Uri
 
-internal class FreezerPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
+internal data class App(internal val name: String, internal val data: ApplicationInfo) : Comparable<App> {
 
-    override fun getCount() = AppAction.COUNT
+    override fun compareTo(other: App) = name.compareTo(other.name, ignoreCase = true)
 
-    override fun getPageTitle(position: Int): CharSequence = context.getString(AppAction[position].nameRes)
+    internal val uri: Uri
+        get() = Uri.parse("package:${data.packageName}")
 
-    override fun getItem(position: Int) = AppListFragment.create(AppAction[position])
+    internal fun createIntent(action: String) = Intent(action, uri)
 
 }

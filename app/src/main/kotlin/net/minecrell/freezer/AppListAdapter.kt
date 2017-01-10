@@ -18,7 +18,6 @@
 
 package net.minecrell.freezer
 
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -28,44 +27,48 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.afollestad.dragselectrecyclerview.DragSelectRecyclerViewAdapter
 
-internal class AppListAdapter(private val pm: PackageManager, apps: List<ApplicationInfo>,
-                              private val listener: Listener)
-    : DragSelectRecyclerViewAdapter<AppListAdapter.ViewHolder>() {
+internal class AppListAdapter : DragSelectRecyclerViewAdapter<AppListAdapter.ViewHolder>() {
 
-    internal interface Listener : SelectionListener {
+    internal interface Handler : SelectionListener {
         fun onClick(index: Int)
         fun onLongClick(index: Int)
 
         fun showAppDetails(index: Int)
+
+        fun setRefreshing(state: Boolean)
     }
 
-    init {
-        setSelectionListener(listener)
+    private var pm: PackageManager? = null
+    private var apps: List<App>? = null
+    private var handler: Handler? = null
+
+    internal fun setHandler(handler: Handler) {
+        this.handler = handler
+        setSelectionListener(handler)
     }
 
-    private var apps: List<App> = prepareApps(apps)
-
-    internal operator fun get(index: Int): ApplicationInfo = apps[index].app
-
-    private fun prepareApps(apps: List<ApplicationInfo>): List<App> {
-        return apps.map { app -> App(app.loadLabel(pm).toString(), app) }.sorted().toList()
+    internal fun setRefreshing(state: Boolean) {
+        handler?.setRefreshing(state)
     }
 
-    internal fun updateApps(apps: List<ApplicationInfo>) {
-        this.apps = prepareApps(apps)
+    internal operator fun get(index: Int): App? = apps?.get(index)
+
+    internal fun update(pm: PackageManager, apps: List<App>) {
+        this.pm = pm
+        this.apps = apps
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = apps.size
+    override fun getItemCount() = apps?.size ?: 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.app_item, parent, false), listener)
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.app_item, parent, false), handler!!)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
 
-        val (name, app) = apps[position]
+        val (name, app) = apps!![position]
         holder.title.text = name
 
         val selected = isIndexSelected(position)
@@ -78,33 +81,29 @@ internal class AppListAdapter(private val pm: PackageManager, apps: List<Applica
         }
     }
 
-    private data class App(val name: String, val app: ApplicationInfo) : Comparable<App> {
-        override fun compareTo(other: App) = name.compareTo(other.name, ignoreCase = true)
-    }
-
-    internal class ViewHolder(view: View, private val listener: Listener) : RecyclerView.ViewHolder(view),
+    internal class ViewHolder(view: View, private val handler: Handler) : RecyclerView.ViewHolder(view),
             View.OnClickListener, View.OnLongClickListener {
 
         internal val title: TextView = view.findViewById(android.R.id.title) as TextView
         internal val icon: ImageView = view.findViewById(android.R.id.icon) as ImageView
-        internal val moreInfo: View = view.findViewById(R.id.more_info)
+        internal val appDetails: View = view.findViewById(R.id.app_details)
 
         init {
             view.setOnClickListener(this)
             view.setOnLongClickListener(this)
-            moreInfo.setOnClickListener(this)
+            appDetails.setOnClickListener(this)
         }
 
         override fun onClick(v: View) {
-            if (v === moreInfo) {
-                listener.showAppDetails(adapterPosition)
+            if (v === appDetails) {
+                handler.showAppDetails(adapterPosition)
             } else {
-                listener.onClick(adapterPosition)
+                handler.onClick(adapterPosition)
             }
         }
 
         override fun onLongClick(v: View?): Boolean {
-            listener.onLongClick(adapterPosition)
+            handler.onLongClick(adapterPosition)
             return true
         }
 

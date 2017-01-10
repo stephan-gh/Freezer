@@ -21,13 +21,19 @@ package net.minecrell.freezer
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import com.afollestad.materialcab.MaterialCab
 
-class FreezerActivity : AppCompatActivity(), ViewPager.OnPageChangeListener {
+class FreezerActivity : AppCompatActivity(), ViewPager.OnPageChangeListener, SwipeRefreshLayout.OnRefreshListener {
+
+    internal val adapters = Array(AppAction.COUNT, { AppListAdapter() })
 
     internal lateinit var cab: MaterialCab
+        private set
+
+    internal var refreshing = false
         private set
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,16 +46,30 @@ class FreezerActivity : AppCompatActivity(), ViewPager.OnPageChangeListener {
         val pager = findViewById(R.id.view_pager) as ViewPager
         pager.addOnPageChangeListener(this)
         pager.adapter = FreezerPagerAdapter(this, supportFragmentManager)
+        pager.offscreenPageLimit = AppAction.COUNT - 1
 
         val tabLayout = findViewById(R.id.tab_layout) as TabLayout
         tabLayout.setupWithViewPager(pager)
+
+        onRefresh()
     }
 
-    internal fun refresh() {
-        for (fragment in supportFragmentManager.fragments) {
-            val f = fragment as FreezerFragment
-            f.refresh()
+    override fun onRefresh() {
+        if (this.refreshing) {
+            return
         }
+
+        this.refreshing = true
+
+        for (adapter in adapters) {
+            adapter.setRefreshing(true)
+        }
+
+        AppListLoader(this, packageManager).execute()
+    }
+
+    internal fun stopRefresh() {
+        this.refreshing = false
     }
 
     override fun onPageSelected(position: Int) {

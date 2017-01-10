@@ -18,16 +18,16 @@
 
 package net.minecrell.freezer
 
-import android.content.Context
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-
-internal class FreezerPagerAdapter(private val context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
-
-    override fun getCount() = AppAction.COUNT
-
-    override fun getPageTitle(position: Int): CharSequence = context.getString(AppAction[position].nameRes)
-
-    override fun getItem(position: Int) = AppListFragment.create(AppAction[position])
-
+internal inline fun <T, reified R : Comparable<R>> List<T>.mapToSortedArray(transform: (T) -> R): Array<R> {
+    return Array(size, { i -> transform(this[i]) }).apply { sort() }
 }
+
+internal inline fun <A, B> mapArrays(a: Array<A>, b: Array<B>, func: (A, B) -> Unit) {
+    for (i in a.indices) {
+        func(a[i], b[i])
+    }
+}
+
+internal inline operator fun <T> Array<T>.get(enum: Enum<*>): T = this[enum.ordinal]
+
+internal inline operator fun Int.contains(bitmask: Int) = (this and bitmask) != 0

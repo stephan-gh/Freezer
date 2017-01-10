@@ -19,12 +19,36 @@
 
 <resources>
     <string name="app_name">Freezer</string>
-    <string name="freeze">freeze</string>
-    <string name="unfreeze">unfreeze</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+
+    <string name="app_details">App Details</string>
 
     <string name="apply">Apply</string>
     <plurals name="app_selection">
         <item quantity="one">%d app selected</item>
         <item quantity="other">%d apps selected</item>
+    </plurals>
+
+    <string name="disable_apps_warning">Disabling system apps may cause your system to malfunction.</string>
+    <string name="disable_apps_positive">Disable apps</string>
+    <string name="disable_apps_negative">Cancel</string>
+
+    <string name="uninstall_progress">Uninstalling apps…</string>
+    <string name="disable_progress">Disabling apps…</string>
+    <string name="enable_progress">Enabling apps…</string>
+
+    <plurals name="uninstall_done">
+        <item quantity="one">App uninstalled</item>
+        <item quantity="other">%d apps uninstalled</item>
+    </plurals>
+    <plurals name="disable_done">
+        <item quantity="one">App disabled</item>
+        <item quantity="other">%d apps disabled</item>
+    </plurals>
+    <plurals name="enable_done">
+        <item quantity="one">App enabled</item>
+        <item quantity="other">%d apps enabled</item>
     </plurals>
 </resources>
