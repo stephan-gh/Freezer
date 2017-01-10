@@ -81,9 +81,11 @@ internal abstract class RootAppOperation(fragment: AppListFragment) : AppAction.
 
         override fun doInBackground(vararg apps: App) {
             val process = buildRootCommand(apps, operation.enable)
+                    .redirectErrorStream(true)
+                    .start()
             val appMap = apps.associateBy { app -> app.data.packageName }
 
-            process.errorStream.bufferedReader().use { reader ->
+            process.inputStream.bufferedReader().use { reader ->
                 var line: String? = reader.readLine()
                 while (line != null) {
                     if (line.startsWith("Package ")) {

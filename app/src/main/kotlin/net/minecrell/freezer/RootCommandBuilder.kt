@@ -18,33 +18,13 @@
 
 package net.minecrell.freezer
 
-internal fun buildRootCommand(apps: Array<out App>, enable: Boolean): Process {
-    return ProcessBuilder(listOf("su", "root", buildCommand(apps, enable))).start()
+internal fun buildRootCommand(apps: Array<out App>, enable: Boolean): ProcessBuilder {
+    return ProcessBuilder(listOf("su", "-c", buildCommand(apps, enable)))
 }
 
 private fun buildCommand(apps: Array<out App>, enable: Boolean): String {
-    apps.singleOrNull()?.let { return buildSingleCommand(it, enable) }
-    return buildCombinedCommand(apps, enable)
-}
-
-private fun buildSingleCommand(app: App, enable: Boolean): String {
-    return if (enable) {
-        ENABLE_APP(app)
-    } else {
-        DISABLE_APP(app)
-    }
-}
-
-private fun buildCombinedCommand(apps: Array<out App>, enable: Boolean): String {
-    val builder = StringBuilder("sh -c '")
-
-    if (enable) {
-        apps.joinTo(builder, separator = "; ", transform = ENABLE_APP)
-    } else {
-        apps.joinTo(builder, separator = "; ", transform = DISABLE_APP)
-    }
-
-    return builder.append('\'').toString()
+    val transform = if (enable) ENABLE_APP else DISABLE_APP
+    return apps.joinToString(separator = "; ", transform = transform)
 }
 
 private val ENABLE_APP = { app: App -> "pm enable ${app.data.packageName}" }
