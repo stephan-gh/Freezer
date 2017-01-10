@@ -25,12 +25,6 @@ android {
         }
     }
 
-    lintOptions {
-        // Display lint report in console (for Travis)
-        textOutput 'stdout'
-        textReport = true
-    }
-
     sourceSets.main.java {
         srcDirs = ['src/main/kotlin']
         include '**/*.kt'

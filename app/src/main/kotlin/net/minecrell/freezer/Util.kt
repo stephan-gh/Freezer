@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
 package net.minecrell.freezer
 
 internal inline fun <T, reified R : Comparable<R>> List<T>.mapToSortedArray(transform: (T) -> R): Array<R> {
